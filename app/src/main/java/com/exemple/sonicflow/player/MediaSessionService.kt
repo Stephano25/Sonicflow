@@ -11,25 +11,20 @@ class SonicFlowService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
-
-        // PlayerManager encapsule ExoPlayer
         val playerManager = PlayerManager(this)
-
-        // Intent pour revenir à l'activité principale
         val sessionActivity = PendingIntent.getActivity(
-            this,
-            0,
+            this, 0,
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
-
-        // Création de la MediaSession
         mediaSession = MediaSession.Builder(this, playerManager.getPlayer())
             .setSessionActivity(sessionActivity)
             .build()
     }
 
-    override fun onGetSession(sessionId: String): MediaSession? = mediaSession
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? {
+        return mediaSession
+    }
 
     override fun onDestroy() {
         mediaSession.release()

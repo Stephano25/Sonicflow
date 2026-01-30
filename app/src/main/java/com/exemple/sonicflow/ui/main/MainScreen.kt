@@ -1,74 +1,68 @@
 package com.exemple.sonicflow.ui.main
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.exemple.sonicflow.data.model.Song
-import com.exemple.sonicflow.player.WaveformExtractor
-import com.exemple.sonicflow.ui.player.PlayerControls
-import com.exemple.sonicflow.ui.player.PlayerVisualizer
-import com.exemple.sonicflow.ui.player.WaveformVisualizer
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 
 @Composable
 fun MainScreen(vm: PlayerViewModel) {
-    val isPlaying = vm.isPlaying.collectAsState().value
-    val songs = vm.songs
+    val songs by vm.songs.collectAsState()
+    val isPlaying by vm.isPlaying.collectAsState()
+    val currentSong by vm.currentSong.collectAsState()
 
-    val amplitudes = remember { mutableStateListOf<Int>() }
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
+        Text("Lecteur SonicFlow", style = MaterialTheme.typography.titleLarge)
 
-    LaunchedEffect(Unit) {
-        val song = vm.songs.firstOrNull()
-        if (song != null) {
-            amplitudes.addAll(WaveformExtractor.extractAmplitudes(LocalContext.current, song.uri))
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Chanson en cours
+        currentSong?.let { song ->
+            Text("En cours : ${song.title} - ${song.artist}", style = MaterialTheme.typography.bodyLarge)
+        } ?: Text("Aucune chanson en cours", style = MaterialTheme.typography.bodyLarge)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Contrôles du lecteur
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+            Button(onClick = { vm.previous() }) { Text("⏮️") }
+            Button(onClick = { vm.playPause() }) { Text(if (isPlaying) "⏸️ Pause" else "▶️ Lecture") }
+            Button(onClick = { vm.next() }) { Text("⏭️") }
         }
-    }
 
-    WaveformVisualizer(amplitudes)
+        Spacer(modifier = Modifier.height(24.dp))
 
-    MaterialTheme {
-        Surface(modifier = Modifier.fillMaxSize()) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Playlist", style = MaterialTheme.typography.titleLarge)
-                Spacer(modifier = Modifier.height(8.dp))
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(songs) { song ->
-                        SongItem(song = song, onClick = { vm.play(song) })
-                    }
-                }
+        // Liste des chansons
+        Text("Bibliothèque", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(8.dp))
 
-                Spacer(modifier = Modifier.height(16.dp))
-                PlayerVisualizer()
-                PlayerControls(
-                    isPlaying = isPlaying,
-                    onPlayPause = { vm.playPause() },
-                    onNext = { vm.next() },
-                    onPrevious = { vm.previous() }
-                )
+        LazyColumn {
+            items(songs) { song ->
+                SongItem(song = song, onPlay = { vm.play(song) })
             }
         }
     }
 }
 
 @Composable
-fun SongItem(song: Song, onClick: () -> Unit) {
-    Column(
+fun SongItem(song: Song, onPlay: () -> Unit) {
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
-            .padding(8.dp)
+            .padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(song.title, style = MaterialTheme.typography.bodyLarge)
-        Text(song.artist, style = MaterialTheme.typography.bodyMedium)
+        Column {
+            Text(song.title, style = MaterialTheme.typography.bodyLarge)
+            Text(song.artist, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        Button(onClick = onPlay) {
+            Text("▶️")
+        }
     }
 }

@@ -9,7 +9,7 @@ class PlayerManager(context: Context) {
     private val player = ExoPlayer.Builder(context).build()
 
     fun play(song: Song) {
-        player.setMediaItem(MediaItem.fromUri(song.uri))
+        player.setMediaItem(MediaItem.fromUri(song.songUri))
         player.prepare()
         player.play()
     }

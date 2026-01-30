@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.exemple.sonicflow.ui.main.MainScreen
 import com.exemple.sonicflow.ui.playlist.PlaylistScreen
+import com.exemple.sonicflow.ui.library.LibraryScreen
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 import com.exemple.sonicflow.viewmodel.PlaylistViewModel
 
@@ -27,6 +28,9 @@ fun AppNavHost(
         }
         composable("playlists") {
             PlaylistScreen(playlistViewModel)
+        }
+        composable("library") {
+            LibraryScreen(playerViewModel)
         }
     }
 }

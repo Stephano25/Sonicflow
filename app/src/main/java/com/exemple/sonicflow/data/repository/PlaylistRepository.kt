@@ -15,7 +15,7 @@ class PlaylistRepository(
     suspend fun insertSong(song: Song) = songDao.insert(song)
     suspend fun insertSongs(songs: List<Song>) = songDao.insertAll(songs)
     suspend fun getAllSongs(): List<Song> = songDao.getAllSongs()
-    suspend fun deleteSong(uri: String) = songDao.deleteSong(uri)
+    suspend fun deleteSong(songUri: String) = songDao.deleteSong(songUri)
 
     // --- Gestion des playlists ---
     suspend fun createPlaylist(name: String): Long {
@@ -24,7 +24,7 @@ class PlaylistRepository(
     }
 
     suspend fun addSongToPlaylist(playlistId: Long, song: Song) {
-        val crossRef = PlaylistTrackCrossRef(playlistId, song.uri.toString())
+        val crossRef = PlaylistTrackCrossRef(playlistId, song.songUri)
         playlistDao.insertCrossRef(crossRef)
     }
 
@@ -32,7 +32,7 @@ class PlaylistRepository(
         playlistDao.getPlaylistWithSongs(id)
 
     suspend fun removeSongFromPlaylist(playlistId: Long, song: Song) {
-        playlistDao.removeSongFromPlaylist(playlistId, song.uri.toString())
+        playlistDao.removeSongFromPlaylist(playlistId, song.songUri)
     }
 
     suspend fun deletePlaylist(id: Long) = playlistDao.deletePlaylist(id)

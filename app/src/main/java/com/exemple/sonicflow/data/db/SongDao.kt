@@ -17,6 +17,6 @@ interface SongDao {
     @Query("SELECT * FROM Song")
     suspend fun getAllSongs(): List<Song>
 
-    @Query("DELETE FROM Song WHERE uri = :uri")
-    suspend fun deleteSong(uri: String)
+    @Query("DELETE FROM Song WHERE songUri = :songUri")
+    suspend fun deleteSong(songUri: String)
 }

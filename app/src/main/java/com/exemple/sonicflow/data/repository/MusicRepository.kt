@@ -29,7 +29,7 @@ class MusicRepository(private val contentResolver: ContentResolver) {
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idCol)
                 val uri = ContentUris.withAppendedId(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, id)
-                songs.add(Song(uri, cursor.getString(titleCol), cursor.getString(artistCol)))
+                songs.add(Song(uri.toString(), cursor.getString(titleCol), cursor.getString(artistCol)))
             }
         }
         return songs

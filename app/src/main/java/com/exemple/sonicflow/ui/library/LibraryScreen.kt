@@ -13,7 +13,9 @@ import com.exemple.sonicflow.viewmodel.PlayerViewModel
 @Composable
 fun LibraryScreen(vm: PlayerViewModel) {
     var query by remember { mutableStateOf("") }
-    val songs = vm.songs.filter {
+    val songs by vm.songs.collectAsState()
+
+    val filteredSongs = songs.filter {
         it.title.contains(query, ignoreCase = true) || it.artist.contains(query, ignoreCase = true)
     }
 
@@ -28,8 +30,19 @@ fun LibraryScreen(vm: PlayerViewModel) {
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn {
-            items(songs) { song ->
-                Text(song.title + " - " + song.artist, style = MaterialTheme.typography.bodyLarge)
+            items(filteredSongs) { song ->
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(song.title, style = MaterialTheme.typography.bodyLarge)
+                        Text(song.artist, style = MaterialTheme.typography.bodyMedium)
+                    }
+                    Button(onClick = { vm.play(song) }) {
+                        Text("▶️")
+                    }
+                }
             }
         }
     }
