@@ -8,11 +8,13 @@ import com.exemple.sonicflow.data.model.PlaylistTrackCrossRef
 import com.exemple.sonicflow.data.model.Song
 
 @Database(
-    entities = [Song::class, Playlist::class, PlaylistTrackCrossRef::class],
+    entities = [Song::class, Playlist::class, PlaylistTrackCrossRef::class, WaveformData::class],
     version = 1
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun songDao(): SongDao
     abstract fun playlistDao(): PlaylistDao
+    abstract fun waveformDao(): WaveformDao
 }
+

@@ -5,12 +5,15 @@ import androidx.room.TypeConverter
 
 class Converters {
     @TypeConverter
-    fun fromUri(uri: Uri?): String? {
-        return uri?.toString()
-    }
+    fun fromUri(uri: Uri?): String? = uri?.toString()
 
     @TypeConverter
-    fun toUri(uriString: String?): Uri? {
-        return uriString?.let { Uri.parse(it) }
-    }
+    fun toUri(uriString: String?): Uri? = uriString?.let { Uri.parse(it) }
+
+    @TypeConverter
+    fun fromIntList(list: List<Int>?): String? = list?.joinToString(",")
+
+    @TypeConverter
+    fun toIntList(data: String?): List<Int>? =
+        data?.split(",")?.mapNotNull { it.toIntOrNull() }
 }
