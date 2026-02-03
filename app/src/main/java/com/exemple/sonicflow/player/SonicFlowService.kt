@@ -12,11 +12,13 @@ class SonicFlowService : MediaSessionService() {
     override fun onCreate() {
         super.onCreate()
         val playerManager = PlayerManager(this)
+
         val sessionActivity = PendingIntent.getActivity(
             this, 0,
             Intent(this, MainActivity::class.java),
             PendingIntent.FLAG_IMMUTABLE
         )
+
         mediaSession = MediaSession.Builder(this, playerManager.getPlayer())
             .setSessionActivity(sessionActivity)
             .build()

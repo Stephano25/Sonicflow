@@ -25,8 +25,7 @@ class PlaylistViewModel(app: Application) : AndroidViewModel(app) {
 
     private fun loadPlaylists() {
         viewModelScope.launch {
-            // Ici tu peux récupérer toutes les playlists avec leurs chansons
-            // (il faudra peut-être créer une requête DAO pour toutes les playlists)
+            _playlists.value = repository.getAllPlaylists()
         }
     }
 

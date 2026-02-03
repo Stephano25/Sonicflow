@@ -1,6 +1,7 @@
 package com.exemple.sonicflow.viewmodel
 
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -46,6 +47,9 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
             val allSongs = musicRepository.getAllSongs()
             _songs.value = allSongs
             db.songDao().insertAll(allSongs) // stocker en base
+
+            // ✅ Log pour vérifier
+            Log.d("SONICFLOW", "Songs loaded: ${allSongs.size}")
         }
     }
 

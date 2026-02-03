@@ -14,8 +14,8 @@ interface PlaylistDao {
     suspend fun insertCrossRef(crossRef: PlaylistTrackCrossRef)
 
     @Transaction
-    @Query("SELECT * FROM Playlist WHERE playlistId = :id")
-    suspend fun getPlaylistWithSongs(id: Long): PlaylistWithSongs
+    @Query("SELECT * FROM Playlist")
+    suspend fun getAllPlaylistsWithSongs(): List<PlaylistWithSongs>
 
     @Query("DELETE FROM Playlist WHERE playlistId = :id")
     suspend fun deletePlaylist(id: Long)

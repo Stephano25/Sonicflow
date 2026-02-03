@@ -28,8 +28,8 @@ class PlaylistRepository(
         playlistDao.insertCrossRef(crossRef)
     }
 
-    suspend fun getPlaylistWithSongs(id: Long): PlaylistWithSongs =
-        playlistDao.getPlaylistWithSongs(id)
+    suspend fun getAllPlaylists(): List<PlaylistWithSongs> =
+        playlistDao.getAllPlaylistsWithSongs()
 
     suspend fun removeSongFromPlaylist(playlistId: Long, song: Song) {
         playlistDao.removeSongFromPlaylist(playlistId, song.songUri)

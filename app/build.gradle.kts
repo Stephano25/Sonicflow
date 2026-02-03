@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    // Core
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
@@ -48,10 +47,8 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
-    // Material Components (XML themes)
+    // Material Components
     implementation("com.google.android.material:material:1.11.0")
-
-    // Material Icons (Compose)
     implementation("androidx.compose.material:material-icons-extended")
 
     // Room
@@ -64,10 +61,15 @@ dependencies {
     implementation(libs.androidx.media3.session)
     implementation(libs.androidx.media3.ui)
 
-    //navigation
+    // Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.media3:media3-exoplayer:1.3.1")
-    implementation("androidx.media3:media3-session:1.3.1")
+
     // Debug tools
     debugImplementation("androidx.compose.ui:ui-tooling")
+}
+
+kapt {
+    arguments {
+        arg("room.schemaLocation", "$projectDir/schemas")
+    }
 }

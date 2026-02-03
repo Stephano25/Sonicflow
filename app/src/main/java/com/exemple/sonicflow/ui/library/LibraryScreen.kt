@@ -7,11 +7,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.exemple.sonicflow.data.model.Song
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 
 @Composable
-fun LibraryScreen(vm: PlayerViewModel) {
+fun LibraryScreen(vm: PlayerViewModel, navController: NavController) {
     var query by remember { mutableStateOf("") }
     val songs by vm.songs.collectAsState()
 
@@ -39,9 +40,13 @@ fun LibraryScreen(vm: PlayerViewModel) {
                         Text(song.title, style = MaterialTheme.typography.bodyLarge)
                         Text(song.artist, style = MaterialTheme.typography.bodyMedium)
                     }
-                    Button(onClick = { vm.play(song) }) {
+                    Button(onClick = {
+                        vm.play(song)
+                        navController.navigate("nowplaying")
+                    }) {
                         Text("▶️")
                     }
+
                 }
             }
         }
