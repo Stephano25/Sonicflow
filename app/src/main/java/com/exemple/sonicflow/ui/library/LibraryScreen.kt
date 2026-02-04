@@ -1,14 +1,14 @@
 package com.exemple.sonicflow.ui.library
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.exemple.sonicflow.data.model.Song
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 
 @Composable
@@ -31,22 +31,21 @@ fun LibraryScreen(vm: PlayerViewModel, navController: NavController) {
         Spacer(modifier = Modifier.height(8.dp))
 
         LazyColumn {
-            items(filteredSongs) { song ->
+            itemsIndexed(filteredSongs) { index, song ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            vm.playAll(filteredSongs, index)
+                            navController.navigate("nowplaying")
+                        }
+                        .padding(8.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column {
                         Text(song.title, style = MaterialTheme.typography.bodyLarge)
                         Text(song.artist, style = MaterialTheme.typography.bodyMedium)
                     }
-                    Button(onClick = {
-                        vm.play(song)
-                        navController.navigate("nowplaying")
-                    }) {
-                        Text("▶️")
-                    }
-
                 }
             }
         }

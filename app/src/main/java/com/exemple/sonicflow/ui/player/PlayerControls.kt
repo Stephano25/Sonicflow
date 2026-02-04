@@ -27,7 +27,7 @@ fun PlayerControls(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         IconButton(onClick = onPrevious) {
-            Icon(imageVector = Icons.Filled.SkipPrevious, contentDescription = "Previous track")
+            Icon(Icons.Filled.SkipPrevious, contentDescription = "Previous track")
         }
         IconButton(onClick = onPlayPause) {
             Icon(
@@ -37,7 +37,7 @@ fun PlayerControls(
             )
         }
         IconButton(onClick = onNext) {
-            Icon(imageVector = Icons.Filled.SkipNext, contentDescription = "Next track")
+            Icon(Icons.Filled.SkipNext, contentDescription = "Next track")
         }
     }
 }
