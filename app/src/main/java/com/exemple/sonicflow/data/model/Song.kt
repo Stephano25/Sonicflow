@@ -1,11 +1,11 @@
 package com.exemple.sonicflow.data.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import android.net.Uri
 
-@Entity
 data class Song(
-    @PrimaryKey val songUri: String,
+    val id: Long,
     val title: String,
-    val artist: String
+    val artist: String,
+    val album: String,
+    val uri: Uri
 )
