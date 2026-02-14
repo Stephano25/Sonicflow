@@ -9,10 +9,8 @@ import com.exemple.sonicflow.player.PlayerManager
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 
 class PlayerViewModel(app: Application) : AndroidViewModel(app) {
-
     private val repository = MusicRepository(app)
     private val manager = PlayerManager(app)
 
@@ -23,25 +21,38 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     fun play(song: Song) {
-        currentSong = song
         manager.play(song)
+        currentSong = manager.getCurrentSong()
     }
 
     fun togglePlayPause() {
-        if (manager.player.isPlaying) {
-            manager.player.pause()
-        } else {
-            manager.player.play()
-        }
+        manager.togglePlayPause()
+    }
+
+    fun isPlaying(): Boolean = manager.player.isPlaying
+
+    fun next() {
+        manager.next()
+        currentSong = manager.getCurrentSong()
+    }
+
+    fun prev() {
+        manager.prev()
+        currentSong = manager.getCurrentSong()
     }
 
     fun loadSongs() {
         songs.clear()
         songs.addAll(repository.getAllSongs())
+        manager.setPlaylist(songs)
+        manager.restoreState() // ✅ reprend la dernière chanson
+        currentSong = manager.getCurrentSong()
     }
 
     override fun onCleared() {
         super.onCleared()
         manager.release()
     }
+    fun getDuration(): Long = manager.player.duration
+    fun getCurrentPosition(): Long = manager.player.currentPosition
 }

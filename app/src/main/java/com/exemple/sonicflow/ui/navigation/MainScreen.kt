@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import com.exemple.sonicflow.ui.screens.LibraryScreen
@@ -23,7 +22,9 @@ fun MainScreen(viewModel: PlayerViewModel) {
     Scaffold(
         bottomBar = {
             Column {
-                MiniPlayer(viewModel) // ✅ version correcte
+                // ✅ MiniPlayer visible partout
+                MiniPlayer(viewModel, onClick = { navController.navigate("player") })
+                // ✅ Barre de navigation en dessous
                 BottomNavigationBar(navController)
             }
         }
@@ -42,24 +43,27 @@ fun MainScreen(viewModel: PlayerViewModel) {
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
+    val currentBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentDestination = currentBackStackEntry.value?.destination?.route
+
     NavigationBar {
         NavigationBarItem(
-            selected = false,
+            selected = currentDestination == "library",
             onClick = { navController.navigate("library") },
             label = { Text("Library") },
-            icon = { Icon(Icons.Default.LibraryMusic, null) }
+            icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) }
         )
         NavigationBarItem(
-            selected = false,
+            selected = currentDestination == "player",
             onClick = { navController.navigate("player") },
             label = { Text("Player") },
-            icon = { Icon(Icons.Default.PlayArrow, null) }
+            icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) }
         )
         NavigationBarItem(
-            selected = false,
+            selected = currentDestination == "playlist",
             onClick = { navController.navigate("playlist") },
             label = { Text("Playlist") },
-            icon = { Icon(Icons.Default.QueueMusic, null) }
+            icon = { Icon(Icons.Default.QueueMusic, contentDescription = null) }
         )
     }
 }
