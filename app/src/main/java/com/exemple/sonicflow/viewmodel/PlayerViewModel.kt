@@ -1,58 +1,104 @@
 package com.exemple.sonicflow.viewmodel
 
 import android.app.Application
-import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
 import com.exemple.sonicflow.data.model.Song
 import com.exemple.sonicflow.data.repository.MusicRepository
 import com.exemple.sonicflow.player.PlayerManager
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import com.exemple.sonicflow.data.repository.PlaylistRepository
+import com.exemple.sonicflow.data.room.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class PlayerViewModel(app: Application) : AndroidViewModel(app) {
+
     private val repository = MusicRepository(app)
     private val manager = PlayerManager(app)
-
-    var currentSong by mutableStateOf<Song?>(null)
-        private set
+    private val db = AppDatabase.getInstance(app)
+    private val playlistRepo = PlaylistRepository(db.playlistDao())
 
     var songs = mutableStateListOf<Song>()
         private set
 
-    fun play(song: Song) {
-        manager.play(song)
-        currentSong = manager.getCurrentSong()
-    }
+    var currentSong by mutableStateOf<Song?>(null)
+        private set
 
-    fun togglePlayPause() {
-        manager.togglePlayPause()
-    }
-
-    fun isPlaying(): Boolean = manager.player.isPlaying
-
-    fun next() {
-        manager.next()
-        currentSong = manager.getCurrentSong()
-    }
-
-    fun prev() {
-        manager.prev()
-        currentSong = manager.getCurrentSong()
+    init {
+        manager.setOnSongChanged { index ->
+            if (index in songs.indices) {
+                currentSong = songs[index]
+            }
+        }
     }
 
     fun loadSongs() {
         songs.clear()
         songs.addAll(repository.getAllSongs())
-        manager.setPlaylist(songs)
-        manager.restoreState() // ✅ reprend la dernière chanson
-        currentSong = manager.getCurrentSong()
+
+        if (songs.isNotEmpty()) {
+            manager.setPlaylist(songs)
+        }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        manager.release()
+    fun play(song: Song) {
+        manager.play(song)
+        currentSong = song
     }
-    fun getDuration(): Long = manager.player.duration
-    fun getCurrentPosition(): Long = manager.player.currentPosition
+
+    fun togglePlayPause() = manager.togglePlayPause()
+
+    fun next() = manager.next()
+
+    fun prev() = manager.prev()
+
+    fun isPlaying(): Boolean = manager.player.isPlaying
+
+    fun getDuration(): Long =
+        manager.player.duration.takeIf { it > 0 } ?: 0L
+
+    fun getCurrentPosition(): Long =
+        manager.player.currentPosition
+
+    override fun onCleared() {
+        manager.release()
+        super.onCleared()
+    }
+
+    // ---------- PLAYLIST ROOM ----------
+
+    suspend fun createPlaylist(name: String) =
+        withContext(Dispatchers.IO) {
+            playlistRepo.createPlaylist(name)
+        }
+
+    suspend fun getPlaylists(): List<Playlist> =
+        withContext(Dispatchers.IO) {
+            playlistRepo.getPlaylists()
+        }
+
+    suspend fun addSongToPlaylist(playlistId: Long, song: Song) =
+        withContext(Dispatchers.IO) {
+            playlistRepo.addSongToPlaylist(
+                playlistId,
+                PlaylistSong(
+                    playlistId = playlistId,
+                    songId = song.id,
+                    title = song.title,
+                    artist = song.artist,
+                    album = song.album,
+                    uri = song.uri.toString()
+                )
+            )
+        }
+
+    suspend fun getSongsForPlaylist(id: Long) =
+        withContext(Dispatchers.IO) {
+            playlistRepo.getSongsForPlaylist(id)
+        }
+
+    suspend fun deleteSongFromPlaylist(song: PlaylistSong) =
+        withContext(Dispatchers.IO) {
+            playlistRepo.deleteSong(song)
+        }
 }

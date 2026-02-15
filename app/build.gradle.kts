@@ -2,8 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    // ⚠️ garde KSP uniquement si tu utilises Room ou un autre processeur d’annotations
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.ksp) // ✅ garde KSP pour Room
 }
 
 android {
@@ -16,6 +15,14 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments += mapOf(
+                    "room.schemaLocation" to "$projectDir/schemas".toString()
+                )
+            }
+        }
     }
 
     buildFeatures {
@@ -27,8 +34,9 @@ android {
     }
 }
 
+
 dependencies {
-    // Compose
+    // ✅ Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.activity.compose)
     implementation(libs.compose.ui)
@@ -37,18 +45,18 @@ dependencies {
     implementation(libs.compose.ui.preview)
     debugImplementation(libs.compose.ui.tooling)
 
-    // Navigation
+    // ✅ Navigation
     implementation(libs.navigation.compose)
 
-    // ViewModel
+    // ✅ ViewModel
     implementation(libs.lifecycle.viewmodel.compose)
 
-    // Room (via KSP)
+    // ✅ Room (via KSP)
     implementation(libs.room.runtime)
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
 
-    // Media3
+    // ✅ Media3
     implementation(libs.media3.exoplayer)
     implementation(libs.media3.session)
     implementation(libs.media3.common)

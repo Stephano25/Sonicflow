@@ -12,6 +12,7 @@ import androidx.navigation.compose.*
 import com.exemple.sonicflow.ui.screens.LibraryScreen
 import com.exemple.sonicflow.ui.screens.PlayerScreen
 import com.exemple.sonicflow.ui.screens.PlaylistScreen
+import com.exemple.sonicflow.ui.screens.PlaylistDetailScreen
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 import com.exemple.sonicflow.ui.components.MiniPlayer
 
@@ -36,7 +37,14 @@ fun MainScreen(viewModel: PlayerViewModel) {
         ) {
             composable("library") { LibraryScreen(viewModel) }
             composable("player") { PlayerScreen(viewModel) }
-            composable("playlist") { PlaylistScreen(viewModel) }
+            composable("playlist") { PlaylistScreen(viewModel, navController) }
+
+            // ✅ nouvelle route avec arguments
+            composable("playlistDetail/{playlistId}/{playlistName}") { backStackEntry ->
+                val playlistId = backStackEntry.arguments?.getString("playlistId")?.toLongOrNull() ?: 0L
+                val playlistName = backStackEntry.arguments?.getString("playlistName") ?: "Playlist"
+                PlaylistDetailScreen(viewModel, playlistId, playlistName)
+            }
         }
     }
 }
