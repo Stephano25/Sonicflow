@@ -4,79 +4,71 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
-import com.exemple.sonicflow.data.room.PlaylistSong
-import com.exemple.sonicflow.data.room.toSong
-import kotlinx.coroutines.launch
+import com.exemple.sonicflow.data.model.Song
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PlaylistDetailScreen(viewModel: PlayerViewModel, playlistId: Long, playlistName: String) {
-    val scope = rememberCoroutineScope()
-    var songs by remember { mutableStateOf<List<PlaylistSong>>(emptyList()) }
+fun PlaylistDetailScreen(
+    viewModel: PlayerViewModel,
+    navController: NavController,
+    playlistId: Long,
+    playlistName: String
+) {
 
-    // ✅ Charger les chansons de la playlist
+    var songs by remember { mutableStateOf<List<Song>>(emptyList()) }
+
     LaunchedEffect(playlistId) {
-        scope.launch {
-            songs = viewModel.getSongsForPlaylist(playlistId)
-        }
+        songs = viewModel.getSongsFromPlaylist(playlistId)
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(8.dp)
-    ) {
-        Text(
-            text = playlistName,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(playlistName) }
+            )
+        }
+    ) { paddingValues ->
 
-        if (songs.isEmpty()) {
-            Text("No songs in this playlist", style = MaterialTheme.typography.bodyLarge)
-        } else {
-            LazyColumn {
-                items(songs) { song ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp)
-                            .clickable {
-                                // ✅ Lecture de la chanson
-                                viewModel.play(song.toSong())
-                            }
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Column {
-                                Text(song.title, style = MaterialTheme.typography.titleMedium)
-                                Text(song.artist, style = MaterialTheme.typography.bodyMedium)
-                                Text(song.album, style = MaterialTheme.typography.bodySmall)
-                            }
-                            IconButton(onClick = {
-                                scope.launch {
-                                    viewModel.deleteSongFromPlaylist(song)
-                                    songs = viewModel.getSongsForPlaylist(playlistId)
-                                }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Delete Song"
-                                )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+
+            items(songs) { song ->
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            viewModel.playSong(song)
+
+                            // 🔥 Naviguer vers PlayerScreen
+                            navController.navigate("player") {
+                                launchSingleTop = true
                             }
                         }
-                    }
+                        .padding(16.dp)
+                ) {
+
+                    Text(
+                        text = song.title,
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text(
+                        text = song.artist,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
+
+                Divider()
             }
         }
     }

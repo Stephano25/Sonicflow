@@ -55,7 +55,9 @@ fun PlaylistScreen(viewModel: PlayerViewModel, navController: NavHostController)
                         .fillMaxWidth()
                         .padding(4.dp)
                         .clickable {
-                            navController.navigate("playlistDetail/${playlist.id}/${playlist.name}")
+                            navController.navigate(
+                                "playlistDetail/${playlist.id}/${android.net.Uri.encode(playlist.name)}"
+                            )
                         }
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {

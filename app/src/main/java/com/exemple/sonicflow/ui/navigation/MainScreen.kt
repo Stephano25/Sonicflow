@@ -3,16 +3,16 @@ package com.exemple.sonicflow.ui.navigation
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.LibraryMusic
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.QueueMusic
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
-import com.exemple.sonicflow.ui.screens.LibraryScreen
-import com.exemple.sonicflow.ui.screens.PlayerScreen
-import com.exemple.sonicflow.ui.screens.PlaylistScreen
-import com.exemple.sonicflow.ui.screens.PlaylistDetailScreen
+import com.exemple.sonicflow.ui.screens.*
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 import com.exemple.sonicflow.ui.components.MiniPlayer
 
@@ -23,13 +23,19 @@ fun MainScreen(viewModel: PlayerViewModel) {
     Scaffold(
         bottomBar = {
             Column {
-                // ✅ MiniPlayer visible partout
-                MiniPlayer(viewModel, onClick = { navController.navigate("player") })
-                // ✅ Barre de navigation en dessous
+                MiniPlayer(
+                    vm = viewModel,
+                    onClick = {
+                        navController.navigate("player") {
+                            launchSingleTop = true
+                        }
+                    }
+                )
                 BottomNavigationBar(navController)
             }
         }
     ) { paddingValues ->
+        // ✅ NavHost simple et propre
         NavHost(
             navController = navController,
             startDestination = "library",
@@ -39,11 +45,18 @@ fun MainScreen(viewModel: PlayerViewModel) {
             composable("player") { PlayerScreen(viewModel) }
             composable("playlist") { PlaylistScreen(viewModel, navController) }
 
-            // ✅ nouvelle route avec arguments
             composable("playlistDetail/{playlistId}/{playlistName}") { backStackEntry ->
-                val playlistId = backStackEntry.arguments?.getString("playlistId")?.toLongOrNull() ?: 0L
-                val playlistName = backStackEntry.arguments?.getString("playlistName") ?: "Playlist"
-                PlaylistDetailScreen(viewModel, playlistId, playlistName)
+                val playlistId =
+                    backStackEntry.arguments?.getString("playlistId")?.toLongOrNull() ?: 0L
+                val playlistName =
+                    backStackEntry.arguments?.getString("playlistName") ?: "Playlist"
+
+                PlaylistDetailScreen(
+                    viewModel = viewModel,
+                    navController = navController,
+                    playlistId = playlistId,
+                    playlistName = playlistName
+                )
             }
         }
     }
@@ -51,25 +64,38 @@ fun MainScreen(viewModel: PlayerViewModel) {
 
 @Composable
 fun BottomNavigationBar(navController: NavHostController) {
-    val currentBackStackEntry = navController.currentBackStackEntryAsState()
-    val currentDestination = currentBackStackEntry.value?.destination?.route
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
     NavigationBar {
         NavigationBarItem(
-            selected = currentDestination == "library",
-            onClick = { navController.navigate("library") },
+            selected = currentRoute == "library",
+            onClick = {
+                navController.navigate("library") {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            },
             label = { Text("Library") },
             icon = { Icon(Icons.Default.LibraryMusic, contentDescription = null) }
         )
         NavigationBarItem(
-            selected = currentDestination == "player",
-            onClick = { navController.navigate("player") },
+            selected = currentRoute == "player",
+            onClick = {
+                navController.navigate("player") {
+                    launchSingleTop = true
+                }
+            },
             label = { Text("Player") },
             icon = { Icon(Icons.Default.PlayArrow, contentDescription = null) }
         )
         NavigationBarItem(
-            selected = currentDestination == "playlist",
-            onClick = { navController.navigate("playlist") },
+            selected = currentRoute == "playlist",
+            onClick = {
+                navController.navigate("playlist") {
+                    launchSingleTop = true
+                }
+            },
             label = { Text("Playlist") },
             icon = { Icon(Icons.Default.QueueMusic, contentDescription = null) }
         )

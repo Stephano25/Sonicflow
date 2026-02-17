@@ -1,92 +1,93 @@
 package com.exemple.sonicflow.ui.screens
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.dp
-import com.exemple.sonicflow.viewmodel.PlayerViewModel
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.SkipNext
-import androidx.compose.material.icons.filled.SkipPrevious
+import androidx.compose.material.icons.filled.*
+import androidx.compose.ui.Alignment
+import com.exemple.sonicflow.ui.player.WaveformVisualizer
 import kotlinx.coroutines.delay
-
-@Composable
-fun WaveformVisualizer(
-    amplitudes: List<Int>,
-    progress: Float,
-    modifier: Modifier = Modifier
-) {
-    // ✅ Récupérer les couleurs dans un contexte Composable
-    val activeColor = MaterialTheme.colorScheme.primary
-    val inactiveColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
-
-    Canvas(modifier = modifier.fillMaxWidth().height(100.dp)) {
-        if (amplitudes.isEmpty()) return@Canvas
-        val barWidth = size.width / amplitudes.size
-        amplitudes.forEachIndexed { index, amp ->
-            val barHeight = (amp / 32767f) * size.height
-            val x = index * barWidth
-            val color = if (index / amplitudes.size.toFloat() <= progress) {
-                activeColor
-            } else {
-                inactiveColor
-            }
-            drawRect(
-                color = color,
-                topLeft = Offset(x, size.height - barHeight),
-                size = Size(barWidth * 0.8f, barHeight)
-            )
-        }
-    }
-}
+import com.exemple.sonicflow.viewmodel.PlayerViewModel
 
 @Composable
 fun PlayerScreen(viewModel: PlayerViewModel) {
-    val currentSong = viewModel.currentSong
 
-    // ✅ Progression mise à jour en temps réel
+    val song = viewModel.currentSong
+    val waveform = viewModel.waveform
+
     var progress by remember { mutableFloatStateOf(0f) }
 
-    LaunchedEffect(viewModel.isPlaying()) {
+    LaunchedEffect(song, viewModel.isPlaying()) {
+
         while (viewModel.isPlaying()) {
+
             val duration = viewModel.getDuration()
             val position = viewModel.getCurrentPosition()
-            progress = if (duration > 0) position.toFloat() / duration.toFloat() else 0f
-            delay(500) // mise à jour toutes les 0.5s
+
+            progress =
+                if (duration > 0)
+                    position.toFloat() / duration.toFloat()
+                else 0f
+
+            delay(300)
         }
     }
 
-    // ⚡ Amplitudes (placeholder, à remplacer par Room ou MediaExtractor)
-    val amplitudes = remember { listOf(1000, 5000, 12000, 8000, 6000, 3000, 9000) }
-
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text(currentSong?.title ?: "No song playing", style = MaterialTheme.typography.headlineSmall)
-        Text(currentSong?.artist ?: "", style = MaterialTheme.typography.bodyMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        WaveformVisualizer(amplitudes, progress)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        verticalArrangement = Arrangement.SpaceBetween
+    ) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+
+            Card(
+                modifier = Modifier.size(300.dp),
+                shape = RoundedCornerShape(20.dp)
+            ) {}
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(song?.title ?: "")
+            Text(song?.artist ?: "")
+        }
+
+        WaveformVisualizer(
+            amplitudes = waveform,
+            progress = progress
+        )
+
+        Row(
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+
             IconButton(onClick = { viewModel.prev() }) {
-                Icon(Icons.Filled.SkipPrevious, contentDescription = "Previous")
+                Icon(Icons.Default.SkipPrevious, null)
             }
-            IconButton(onClick = { viewModel.togglePlayPause() }) {
+
+            IconButton(
+                onClick = { viewModel.togglePlayPause() },
+                modifier = Modifier.size(72.dp)
+            ) {
                 Icon(
-                    if (viewModel.isPlaying()) Icons.Filled.Pause else Icons.Filled.PlayArrow,
-                    contentDescription = "Play/Pause"
+                    if (viewModel.isPlaying())
+                        Icons.Default.Pause
+                    else
+                        Icons.Default.PlayArrow,
+                    null
                 )
             }
+
             IconButton(onClick = { viewModel.next() }) {
-                Icon(Icons.Filled.SkipNext, contentDescription = "Next")
+                Icon(Icons.Default.SkipNext, null)
             }
         }
     }

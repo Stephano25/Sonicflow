@@ -15,14 +15,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += mapOf(
-                    "room.schemaLocation" to "$projectDir/schemas".toString()
-                )
-            }
-        }
     }
 
     buildFeatures {
@@ -32,8 +24,14 @@ android {
     kotlin {
         jvmToolchain(17)
     }
-}
 
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            isShrinkResources = false
+        }
+    }
+}
 
 dependencies {
     // ✅ Compose
@@ -61,4 +59,5 @@ dependencies {
     implementation(libs.media3.session)
     implementation(libs.media3.common)
     implementation("androidx.media3:media3-ui:1.3.1")
+    implementation ("androidx.compose.animation:animation")
 }

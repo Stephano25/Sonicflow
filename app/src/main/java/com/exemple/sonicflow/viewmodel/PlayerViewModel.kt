@@ -1,14 +1,20 @@
 package com.exemple.sonicflow.viewmodel
 
 import android.app.Application
+import android.content.Context
+import android.net.Uri
 import androidx.compose.runtime.*
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.media3.common.Player
 import com.exemple.sonicflow.data.model.Song
 import com.exemple.sonicflow.data.repository.MusicRepository
-import com.exemple.sonicflow.player.PlayerManager
 import com.exemple.sonicflow.data.repository.PlaylistRepository
 import com.exemple.sonicflow.data.room.*
+import com.exemple.sonicflow.player.PlayerManager
+import com.exemple.sonicflow.player.WaveformExtractor
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PlayerViewModel(app: Application) : AndroidViewModel(app) {
@@ -24,18 +30,23 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     var currentSong by mutableStateOf<Song?>(null)
         private set
 
+    var waveform by mutableStateOf<List<Int>>(emptyList())
+        private set
+
     init {
         manager.setOnSongChanged { index ->
             if (index in songs.indices) {
                 currentSong = songs[index]
+                generateWaveform(getApplication(), songs[index].uri)
             }
         }
     }
 
+    // ---------------- MUSIC ----------------
+
     fun loadSongs() {
         songs.clear()
         songs.addAll(repository.getAllSongs())
-
         if (songs.isNotEmpty()) {
             manager.setPlaylist(songs)
         }
@@ -44,61 +55,76 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     fun play(song: Song) {
         manager.play(song)
         currentSong = song
+        generateWaveform(getApplication(), song.uri)
+    }
+
+    fun playSong(song: Song) {
+        play(song)
     }
 
     fun togglePlayPause() = manager.togglePlayPause()
-
     fun next() = manager.next()
-
     fun prev() = manager.prev()
 
-    fun isPlaying(): Boolean = manager.player.isPlaying
+    fun isPlaying(): Boolean {
+        return manager.player.playbackState == Player.STATE_READY &&
+                manager.player.playWhenReady
+    }
 
-    fun getDuration(): Long =
-        manager.player.duration.takeIf { it > 0 } ?: 0L
+    fun getDuration(): Long {
+        val d = manager.player.duration
+        return if (d > 0) d else 0L
+    }
 
     fun getCurrentPosition(): Long =
         manager.player.currentPosition
+
+    // ---------------- PLAYLIST ----------------
+
+    suspend fun getPlaylists(): List<Playlist> {
+        return playlistRepo.getPlaylists()
+    }
+
+    suspend fun createPlaylist(name: String) {
+        playlistRepo.createPlaylist(name)
+    }
+
+    suspend fun addSongToPlaylist(playlistId: Long, song: Song) {
+        val playlistSong = PlaylistSong(
+            playlistId = playlistId,
+            songId = song.id,
+            title = song.title,
+            artist = song.artist,
+            album = song.album,
+            uri = song.uri.toString()
+        )
+        playlistRepo.addSongToPlaylist(playlistId, playlistSong)
+    }
+
+    suspend fun getSongsFromPlaylist(playlistId: Long): List<Song> {
+        return playlistRepo
+            .getSongsForPlaylist(playlistId)
+            .map { it.toSong() }
+    }
+
+    // ---------------- WAVEFORM ----------------
+
+    private fun generateWaveform(context: Context, uri: Uri) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val result = try {
+                WaveformExtractor.extractWaveform(context, uri)
+            } catch (e: Exception) {
+                emptyList()
+            }
+
+            withContext(Dispatchers.Main) {
+                waveform = result
+            }
+        }
+    }
 
     override fun onCleared() {
         manager.release()
         super.onCleared()
     }
-
-    // ---------- PLAYLIST ROOM ----------
-
-    suspend fun createPlaylist(name: String) =
-        withContext(Dispatchers.IO) {
-            playlistRepo.createPlaylist(name)
-        }
-
-    suspend fun getPlaylists(): List<Playlist> =
-        withContext(Dispatchers.IO) {
-            playlistRepo.getPlaylists()
-        }
-
-    suspend fun addSongToPlaylist(playlistId: Long, song: Song) =
-        withContext(Dispatchers.IO) {
-            playlistRepo.addSongToPlaylist(
-                playlistId,
-                PlaylistSong(
-                    playlistId = playlistId,
-                    songId = song.id,
-                    title = song.title,
-                    artist = song.artist,
-                    album = song.album,
-                    uri = song.uri.toString()
-                )
-            )
-        }
-
-    suspend fun getSongsForPlaylist(id: Long) =
-        withContext(Dispatchers.IO) {
-            playlistRepo.getSongsForPlaylist(id)
-        }
-
-    suspend fun deleteSongFromPlaylist(song: PlaylistSong) =
-        withContext(Dispatchers.IO) {
-            playlistRepo.deleteSong(song)
-        }
 }

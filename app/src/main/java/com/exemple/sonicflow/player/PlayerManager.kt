@@ -7,6 +7,8 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.exemple.sonicflow.data.model.Song
+import android.os.Handler
+import android.os.Looper
 
 class PlayerManager(context: Context) {
 
@@ -14,6 +16,9 @@ class PlayerManager(context: Context) {
 
     private var playlist: List<Song> = emptyList()
     private var onSongChanged: ((Int) -> Unit)? = null
+    private var equalizerManager: EqualizerManager? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private var crossfadeDuration = 3000L
 
     init {
         val audioAttributes = AudioAttributes.Builder()
@@ -40,6 +45,23 @@ class PlayerManager(context: Context) {
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 error.printStackTrace()
             }
+
+            override fun onPlaybackStateChanged(state: Int) {
+
+                if (state == Player.STATE_ENDED) {
+                    if (player.hasNextMediaItem()) {
+                        player.seekToNext()
+                    }
+                }
+
+                if (state == Player.STATE_READY) {
+                    val sessionId = player.audioSessionId
+                    if (sessionId != 0) {
+                        equalizerManager = EqualizerManager(sessionId)
+                    }
+                }
+            }
+
         })
     }
 
@@ -81,7 +103,7 @@ class PlayerManager(context: Context) {
 
     fun next() {
         if (player.hasNextMediaItem()) {
-            player.seekToNext()
+            crossfadeToNext()
         }
     }
 
@@ -94,4 +116,34 @@ class PlayerManager(context: Context) {
     fun release() {
         player.release()
     }
+    private fun crossfadeToNext() {
+
+        if (!player.isPlaying) {
+            player.seekToNext()
+            return
+        }
+
+        val steps = 15
+        val delay = crossfadeDuration / steps
+        var currentStep = 0
+
+        handler.post(object : Runnable {
+            override fun run() {
+
+                if (currentStep < steps && player.isPlaying) {
+
+                    val volume = 1f - (currentStep / steps.toFloat())
+                    player.volume = volume
+                    currentStep++
+
+                    handler.postDelayed(this, delay)
+
+                } else {
+                    player.seekToNext()
+                    player.volume = 1f
+                }
+            }
+        })
+    }
+
 }
