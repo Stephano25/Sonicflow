@@ -7,6 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.ui.graphics.Color
 import com.exemple.sonicflow.ui.navigation.MainScreen
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 
@@ -31,7 +34,15 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            MainScreen(viewModel)
+            MaterialTheme(
+                colorScheme = darkColorScheme(
+                    primary = Color(0xFF8E2DE2),
+                    secondary = Color(0xFF4A00E0)
+                )
+            ) {
+                MainScreen(viewModel)
+            }
         }
+
     }
 }

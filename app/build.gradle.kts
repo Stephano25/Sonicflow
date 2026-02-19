@@ -60,4 +60,6 @@ dependencies {
     implementation(libs.media3.common)
     implementation("androidx.media3:media3-ui:1.3.1")
     implementation ("androidx.compose.animation:animation")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 }

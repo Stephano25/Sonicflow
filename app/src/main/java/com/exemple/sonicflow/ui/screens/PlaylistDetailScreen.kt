@@ -47,7 +47,7 @@ fun PlaylistDetailScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            viewModel.playSong(song)
+                            viewModel.play(song)
 
                             // 🔥 Naviguer vers PlayerScreen
                             navController.navigate("player") {

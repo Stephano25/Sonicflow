@@ -1,24 +1,28 @@
 package com.exemple.sonicflow.player
 
 import android.content.Context
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
 import com.exemple.sonicflow.data.model.Song
-import android.os.Handler
-import android.os.Looper
 
+@OptIn(UnstableApi::class)
 class PlayerManager(context: Context) {
 
-    val player: ExoPlayer = ExoPlayer.Builder(context).build()
+    private val appContext = context.applicationContext
+    val player: ExoPlayer = ExoPlayer.Builder(appContext).build()
 
     private var playlist: List<Song> = emptyList()
     private var onSongChanged: ((Int) -> Unit)? = null
-    private var equalizerManager: EqualizerManager? = null
-    private val handler = Handler(Looper.getMainLooper())
-    private var crossfadeDuration = 3000L
+
+    // Amplitude simulée pour le waveform
+    var currentAmplitude: Int = 0
+        private set
 
     init {
         val audioAttributes = AudioAttributes.Builder()
@@ -28,40 +32,17 @@ class PlayerManager(context: Context) {
 
         player.setAudioAttributes(audioAttributes, true)
         player.repeatMode = Player.REPEAT_MODE_ALL
-        player.volume = 1f
+        player.playWhenReady = false
 
         player.addListener(object : Player.Listener {
-
-            override fun onMediaItemTransition(
-                mediaItem: MediaItem?,
-                reason: Int
-            ) {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 val index = player.currentMediaItemIndex
-                if (index in playlist.indices) {
-                    onSongChanged?.invoke(index)
-                }
+                if (index in playlist.indices) onSongChanged?.invoke(index)
             }
 
-            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                error.printStackTrace()
+            override fun onPlayerError(error: PlaybackException) {
+                println("PLAYER ERROR: ${error.message}")
             }
-
-            override fun onPlaybackStateChanged(state: Int) {
-
-                if (state == Player.STATE_ENDED) {
-                    if (player.hasNextMediaItem()) {
-                        player.seekToNext()
-                    }
-                }
-
-                if (state == Player.STATE_READY) {
-                    val sessionId = player.audioSessionId
-                    if (sessionId != 0) {
-                        equalizerManager = EqualizerManager(sessionId)
-                    }
-                }
-            }
-
         })
     }
 
@@ -71,79 +52,41 @@ class PlayerManager(context: Context) {
 
     fun setPlaylist(songs: List<Song>) {
         playlist = songs
-
         player.stop()
         player.clearMediaItems()
-
-        songs.forEach {
-            player.addMediaItem(MediaItem.fromUri(it.uri))
-        }
-
+        val mediaItems = songs.map { MediaItem.fromUri(it.uri) }
+        player.setMediaItems(mediaItems)
         player.prepare()
     }
 
     fun play(song: Song) {
         if (playlist.isEmpty()) return
-
         val index = playlist.indexOf(song)
         if (index == -1) return
-
-        player.seekTo(index, 0L)
+        player.seekTo(index, 0)
         player.playWhenReady = true
-        player.volume = 1f
+        player.play()
     }
 
     fun togglePlayPause() {
-        if (player.isPlaying) player.pause()
-        else {
-            player.playWhenReady = true
-            player.volume = 1f
-        }
+        if (player.isPlaying) player.pause() else player.play()
     }
 
     fun next() {
-        if (player.hasNextMediaItem()) {
-            crossfadeToNext()
-        }
+        if (player.hasNextMediaItem()) player.seekToNext()
     }
 
     fun prev() {
-        if (player.hasPreviousMediaItem()) {
-            player.seekToPrevious()
-        }
+        if (player.hasPreviousMediaItem()) player.seekToPrevious()
     }
 
-    fun release() {
-        player.release()
+    fun seekTo(position: Long) { player.seekTo(position) }
+    fun getCurrentPosition(): Long = player.currentPosition
+    fun getDuration(): Long = if (player.duration > 0) player.duration else 0L
+    fun release() { player.release() }
+
+    // ---------------- Amplitude simulation ----------------
+    fun updateAmplitude() {
+        currentAmplitude = if (player.isPlaying) (50..150).random() else 0
     }
-    private fun crossfadeToNext() {
-
-        if (!player.isPlaying) {
-            player.seekToNext()
-            return
-        }
-
-        val steps = 15
-        val delay = crossfadeDuration / steps
-        var currentStep = 0
-
-        handler.post(object : Runnable {
-            override fun run() {
-
-                if (currentStep < steps && player.isPlaying) {
-
-                    val volume = 1f - (currentStep / steps.toFloat())
-                    player.volume = volume
-                    currentStep++
-
-                    handler.postDelayed(this, delay)
-
-                } else {
-                    player.seekToNext()
-                    player.volume = 1f
-                }
-            }
-        })
-    }
-
 }
