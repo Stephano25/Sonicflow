@@ -18,6 +18,7 @@ class PlayerManager(context: Context) {
     val player: ExoPlayer = ExoPlayer.Builder(appContext).build()
 
     private var playlist: List<Song> = emptyList()
+    private var currentIndex = 0
     private var onSongChanged: ((Int) -> Unit)? = null
 
     // Amplitude simulée pour le waveform
@@ -36,8 +37,9 @@ class PlayerManager(context: Context) {
 
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                val index = player.currentMediaItemIndex
-                if (index in playlist.indices) onSongChanged?.invoke(index)
+                if (currentIndex in playlist.indices) {
+                    onSongChanged?.invoke(currentIndex)
+                }
             }
 
             override fun onPlayerError(error: PlaybackException) {
@@ -52,6 +54,7 @@ class PlayerManager(context: Context) {
 
     fun setPlaylist(songs: List<Song>) {
         playlist = songs
+        currentIndex = 0
         player.stop()
         player.clearMediaItems()
         val mediaItems = songs.map { MediaItem.fromUri(it.uri) }
@@ -60,12 +63,16 @@ class PlayerManager(context: Context) {
     }
 
     fun play(song: Song) {
-        if (playlist.isEmpty()) return
-        val index = playlist.indexOf(song)
+        val index = playlist.indexOfFirst { it.id == song.id }
         if (index == -1) return
-        player.seekTo(index, 0)
-        player.playWhenReady = true
-        player.play()
+
+        currentIndex = index
+        // NE PAS recréer de MediaItem, utiliser la playlist déjà préparée
+        player.seekTo(currentIndex, 0)
+        if (!player.isPlaying) {
+            player.playWhenReady = true
+            player.play()
+        }
     }
 
     fun togglePlayPause() {
@@ -73,11 +80,19 @@ class PlayerManager(context: Context) {
     }
 
     fun next() {
-        if (player.hasNextMediaItem()) player.seekToNext()
+        if (playlist.isEmpty()) return
+        currentIndex++
+        if (currentIndex >= playlist.size) currentIndex = 0
+        val nextSong = playlist[currentIndex]
+        play(nextSong)
     }
 
     fun prev() {
-        if (player.hasPreviousMediaItem()) player.seekToPrevious()
+        if (playlist.isEmpty()) return
+        currentIndex--
+        if (currentIndex < 0) currentIndex = playlist.lastIndex
+        val prevSong = playlist[currentIndex]
+        play(prevSong)
     }
 
     fun seekTo(position: Long) { player.seekTo(position) }

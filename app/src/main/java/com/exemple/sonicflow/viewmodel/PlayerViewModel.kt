@@ -82,8 +82,17 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun togglePlayPause() = manager.togglePlayPause()
-    fun next() = manager.next()
-    fun prev() = manager.prev()
+    fun next() {
+        manager.next()
+        currentSong = manager.player.currentMediaItemIndex
+            .takeIf { it in songs.indices }?.let { songs[it] }
+    }
+
+    fun prev() {
+        manager.prev()
+        currentSong = manager.player.currentMediaItemIndex
+            .takeIf { it in songs.indices }?.let { songs[it] }
+    }
     fun seekTo(pos: Long) = manager.seekTo(pos)
     fun isPlaying(): Boolean = manager.player.playbackState == Player.STATE_READY && manager.player.playWhenReady
 
