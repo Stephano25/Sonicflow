@@ -89,4 +89,8 @@ class PlayerManager(context: Context) {
     fun updateAmplitude() {
         currentAmplitude = if (player.isPlaying) (50..150).random() else 0
     }
+
+    fun toggleShuffle() {
+        player.shuffleModeEnabled = !player.shuffleModeEnabled
+    }
 }

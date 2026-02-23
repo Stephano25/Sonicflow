@@ -19,7 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+import com.exemple.sonicflow.data.room.Playlist
 class PlayerViewModel(app: Application) : AndroidViewModel(app) {
 
     private val repository = MusicRepository(app)
@@ -121,5 +121,16 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     override fun onCleared() {
         manager.release()
         super.onCleared()
+    }
+    suspend fun deletePlaylist(playlist: Playlist) {
+        playlistRepo.deletePlaylist(playlist)
+    }
+
+    suspend fun removeSongFromPlaylist(playlistId: Long, song: Song) {
+        val songs = playlistRepo.getSongsForPlaylist(playlistId)
+        val toDelete = songs.find { it.songId == song.id }
+        if (toDelete != null) {
+            playlistRepo.deleteSong(toDelete)
+        }
     }
 }
