@@ -14,15 +14,11 @@ class MusicService : MediaSessionService() {
 
     override fun onCreate() {
         super.onCreate()
-
         playerManager = PlayerManager(this)
-
-        mediaSession = MediaSession.Builder(this, playerManager.player)
-            .build()
+        mediaSession = MediaSession.Builder(this, playerManager.player).build()
     }
 
-    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo)
-            : MediaSession? = mediaSession
+    override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = mediaSession
 
     override fun onDestroy() {
         mediaSession?.release()
