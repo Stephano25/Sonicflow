@@ -4,19 +4,45 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!-- Fond avec dégradé (sans aapt:attr) -->
     <path
         android:fillColor="#FF8E2DE2"
-        android:pathData="M54,0L54,0A54,54 0,0 1,108 54L108,54A54,54 0,0 1,54 108L54,108A54,54 0,0 1,0 108L0,108A54,54 0,0 1,0 54L0,54A54,54 0,0 1,54 0z" />
+        android:pathData="M54,0 L54,0A54,54 0,0 1,108 54L108,54A54,54 0,0 1,54 108L54,108A54,54 0,0 1,0 108L0,108A54,54 0,0 1,0 54L0,54A54,54 0,0 1,54 0z" />
+
+    <!-- Cercle extérieur brillant -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#80FFFFFF"
+        android:strokeWidth="2"
+        android:pathData="M54,14 A40,40 0,0 1,94 54 A40,40 0,0 1,54 94 A40,40 0,0 1,14 54 A40,40 0,0 1,54 14 Z" />
+
+    <!-- Note de musique principale -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M34,40 L44,40 L44,68 L34,68 L34,40 Z" />
+        android:pathData="M54,35 L54,65 L64,55 L54,45 Z" />
+
+    <!-- Cercle de la note -->
     <path
         android:fillColor="#FFFFFFFF"
-        android:pathData="M49,30 L59,30 L59,78 L49,78 L49,30 Z" />
+        android:pathData="M44,60 A8,8 0,0 1,36 68 A8,8 0,0 1,28 60 A8,8 0,0 1,44 60 Z" />
+
+    <!-- Traînée lumineuse -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M64,20 L74,20 L74,88 L64,88 L64,20 Z" />
+        android:fillColor="#40FFFFFF"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="3"
+        android:pathData="M68,30 Q78,40 82,52 Q86,64 76,74 Q70,80 58,78" />
+
+    <!-- Petites étoiles/particules -->
     <path
-        android:fillColor="#FF4A00E0"
-        android:pathData="M79,35 L89,35 L89,73 L79,73 L79,35 Z" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M78,38 L80,38 L79,40 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M84,60 L86,60 L85,62 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M70,76 L72,76 L71,78 Z" />
+
 </vector>

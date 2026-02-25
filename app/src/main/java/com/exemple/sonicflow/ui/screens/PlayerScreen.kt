@@ -1,7 +1,6 @@
 package com.exemple.sonicflow.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -24,7 +23,7 @@ fun PlayerScreen(viewModel: PlayerViewModel) {
     val isPlaying by viewModel.isPlaying.collectAsState()
     val position by viewModel.currentPosition.collectAsState()
     val duration by viewModel.duration.collectAsState()
-    val waveform by viewModel.waveform.collectAsState()
+    val waveform by viewModel.waveform.collectAsState()  // AJOUTÉ : récupérer waveform
 
     var showSleepTimer by remember { mutableStateOf(false) }
     var isShuffle by remember { mutableStateOf(false) }
@@ -76,7 +75,10 @@ fun PlayerScreen(viewModel: PlayerViewModel) {
             WaveformVisualizer(
                 amplitudes = waveform,
                 progress = if (duration > 0) position.toFloat() / duration else 0f,
-                isPlaying = isPlaying
+                isPlaying = isPlaying,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -112,7 +114,10 @@ fun PlayerScreen(viewModel: PlayerViewModel) {
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                IconButton(onClick = { isShuffle = !isShuffle }) {
+                IconButton(onClick = {
+                    isShuffle = !isShuffle
+                    viewModel.toggleShuffle()  // AJOUTÉ : appeler la méthode du ViewModel
+                }) {
                     Icon(
                         Icons.Default.Shuffle,
                         contentDescription = "Aléatoire",
@@ -158,7 +163,10 @@ fun PlayerScreen(viewModel: PlayerViewModel) {
                 }
 
                 IconButton(
-                    onClick = { repeatMode = (repeatMode + 1) % 3 }
+                    onClick = {
+                        repeatMode = (repeatMode + 1) % 3
+                        viewModel.setRepeatMode(repeatMode)  // AJOUTÉ : appeler la méthode du ViewModel
+                    }
                 ) {
                     Icon(
                         when (repeatMode) {

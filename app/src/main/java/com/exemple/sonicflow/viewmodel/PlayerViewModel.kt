@@ -1,7 +1,6 @@
 package com.exemple.sonicflow.viewmodel
 
 import android.app.Application
-import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.exemple.sonicflow.data.model.Song
@@ -42,12 +41,9 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     private val _isPlaying = MutableStateFlow(false)
     val isPlaying: StateFlow<Boolean> = _isPlaying.asStateFlow()
 
-    private val _currentAmplitude = MutableStateFlow(0)
-    val currentAmplitude: StateFlow<Int> = _currentAmplitude.asStateFlow()
-
-    // Waveform simplifié
+    // Waveform simplifié (animation seulement, pas de temps réel)
     private val _waveform = MutableStateFlow<List<Float>>(
-        List(30) { index -> (0.2f + 0.8f * (index % 3) / 3f) }
+        List(50) { index -> 0.3f + 0.1f * (index % 3) }
     )
     val waveform: StateFlow<List<Float>> = _waveform.asStateFlow()
 
@@ -65,8 +61,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
                 _currentPosition.value = manager.getCurrentPosition()
                 _duration.value = manager.getDuration()
                 _isPlaying.value = manager.isPlaying()
-                _currentAmplitude.value = manager.currentAmplitude
-                delay(200) // Plus lent = moins de charge
+                delay(200)
             }
         }
     }
@@ -89,10 +84,8 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun play(song: Song) {
-        viewModelScope.launch {
-            manager.play(song)
-            _currentSong.value = song
-        }
+        manager.play(song)
+        _currentSong.value = song
     }
 
     fun togglePlayPause() = manager.togglePlayPause()
@@ -109,6 +102,7 @@ class PlayerViewModel(app: Application) : AndroidViewModel(app) {
     fun toggleShuffle() = manager.toggleShuffle()
     fun setRepeatMode(mode: Int) = manager.setRepeatMode(mode)
 
+    // Playlists
     suspend fun getPlaylists(): List<Playlist> = withContext(Dispatchers.IO) {
         try { playlistRepo.getPlaylists() } catch (e: Exception) { emptyList() }
     }

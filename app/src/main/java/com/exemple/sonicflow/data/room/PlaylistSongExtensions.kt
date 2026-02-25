@@ -3,7 +3,6 @@ package com.exemple.sonicflow.data.room
 import android.net.Uri
 import com.exemple.sonicflow.data.model.Song
 
-// Extension pour convertir PlaylistSong en Song
 fun PlaylistSong.toSong(): Song {
     return Song(
         id = this.songId,
@@ -11,6 +10,6 @@ fun PlaylistSong.toSong(): Song {
         artist = this.artist,
         album = this.album,
         uri = Uri.parse(this.uri),
-        albumId = this.albumId  // Ajout de albumId
+        albumId = this.albumId
     )
 }

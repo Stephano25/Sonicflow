@@ -12,5 +12,5 @@ data class PlaylistSong(
     val artist: String,
     val album: String,
     val uri: String,
-    val albumId: Long = 0  // Ajout de albumId
+    val albumId: Long = 0
 )

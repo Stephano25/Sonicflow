@@ -1,6 +1,7 @@
 package com.exemple.sonicflow
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -17,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
+import com.exemple.sonicflow.service.MusicService
 import com.exemple.sonicflow.ui.navigation.MainScreen
 import com.exemple.sonicflow.viewmodel.PlayerViewModel
 
@@ -31,6 +33,7 @@ class MainActivity : ComponentActivity() {
         hasPermission = isGranted
         if (isGranted) {
             viewModel.loadSongs()
+            startMusicService()
         } else {
             Toast.makeText(
                 this,
@@ -43,7 +46,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Vérifier la permission au démarrage
         checkAndRequestPermission()
 
         setContent {
@@ -53,7 +55,6 @@ class MainActivity : ComponentActivity() {
                     secondary = Color(0xFF4A00E0)
                 )
             ) {
-                // Attendre que la permission soit accordée avant d'afficher l'écran principal
                 LaunchedEffect(hasPermission) {
                     if (hasPermission) {
                         viewModel.loadSongs()
@@ -76,10 +77,20 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED -> {
                 hasPermission = true
                 viewModel.loadSongs()
+                startMusicService()
             }
             else -> {
                 permissionLauncher.launch(permission)
             }
+        }
+    }
+
+    private fun startMusicService() {
+        val intent = Intent(this, MusicService::class.java)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(intent)
+        } else {
+            startService(intent)
         }
     }
 }

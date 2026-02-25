@@ -4,17 +4,27 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(
     entities = [Playlist::class, PlaylistSong::class],
-    version = 1,
-    exportSchema = false // ✅ évite le warning et les crashs
+    version = 2,  // INC RÉMENTER LA VERSION
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
 
     companion object {
         @Volatile private var INSTANCE: AppDatabase? = null
+
+        // Migration de la version 1 à 2
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Ajouter la colonne albumId si elle n'existe pas
+                db.execSQL("ALTER TABLE playlist_songs ADD COLUMN albumId INTEGER NOT NULL DEFAULT 0")
+            }
+        }
 
         fun getInstance(context: Context): AppDatabase {
             return INSTANCE ?: synchronized(this) {
@@ -23,8 +33,10 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "sonicflow_db"
                 )
-                    // ✅ tu peux ajouter .fallbackToDestructiveMigration() si tu veux éviter les crashs en cas de changement de schéma
-                    .build().also { INSTANCE = it }
+                    .addMigrations(MIGRATION_1_2)  // Ajouter la migration
+                    .fallbackToDestructiveMigration()  // En cas d'erreur, recréer la DB
+                    .build()
+                    .also { INSTANCE = it }
             }
         }
     }
