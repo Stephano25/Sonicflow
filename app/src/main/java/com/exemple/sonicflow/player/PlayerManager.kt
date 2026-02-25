@@ -1,17 +1,17 @@
 package com.exemple.sonicflow.player
 
 import android.content.Context
-import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
-import androidx.media3.common.Player
 import androidx.media3.common.PlaybackException
-import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.exemple.sonicflow.data.model.Song
+import kotlinx.coroutines.*
+import kotlin.math.sin
+import kotlin.random.Random
 
-@OptIn(UnstableApi::class)
 class PlayerManager(context: Context) {
 
     private val appContext = context.applicationContext
@@ -25,6 +25,9 @@ class PlayerManager(context: Context) {
     var currentAmplitude: Int = 0
         private set
 
+    private val amplitudeJob = Job()
+    private val amplitudeScope = CoroutineScope(Dispatchers.Main + amplitudeJob) // Changé à Main
+
     init {
         val audioAttributes = AudioAttributes.Builder()
             .setUsage(C.USAGE_MEDIA)
@@ -37,15 +40,39 @@ class PlayerManager(context: Context) {
 
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                if (currentIndex in playlist.indices) {
-                    onSongChanged?.invoke(currentIndex)
-                }
+                currentIndex = player.currentMediaItemIndex
+                onSongChanged?.invoke(currentIndex)
+            }
+
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                // Mettre à jour l'état de lecture
             }
 
             override fun onPlayerError(error: PlaybackException) {
                 println("PLAYER ERROR: ${error.message}")
             }
         })
+
+        // Démarrer la simulation d'amplitude
+        startAmplitudeSimulation()
+    }
+
+    private fun startAmplitudeSimulation() {
+        amplitudeScope.launch {
+            var phase = 0.0
+            while (isActive) {
+                if (player.isPlaying) {  // Maintenant sur le bon thread
+                    // Simulation d'amplitude
+                    phase += 0.1
+                    val baseAmplitude = 50 + (sin(phase) * 30).toInt()
+                    val randomVariation = Random.nextInt(-15, 15)
+                    currentAmplitude = (baseAmplitude + randomVariation).coerceIn(20, 150)
+                } else {
+                    currentAmplitude = 0
+                }
+                delay(50)
+            }
+        }
     }
 
     fun setOnSongChanged(listener: (Int) -> Unit) {
@@ -67,45 +94,60 @@ class PlayerManager(context: Context) {
         if (index == -1) return
 
         currentIndex = index
-        // NE PAS recréer de MediaItem, utiliser la playlist déjà préparée
         player.seekTo(currentIndex, 0)
-        if (!player.isPlaying) {
-            player.playWhenReady = true
-            player.play()
-        }
+        player.play()
     }
 
     fun togglePlayPause() {
         if (player.isPlaying) player.pause() else player.play()
     }
 
+    fun pause() {
+        player.pause()
+    }
+
     fun next() {
         if (playlist.isEmpty()) return
-        currentIndex++
-        if (currentIndex >= playlist.size) currentIndex = 0
-        val nextSong = playlist[currentIndex]
-        play(nextSong)
+        player.seekToNext()
+        currentIndex = player.currentMediaItemIndex
     }
 
     fun prev() {
         if (playlist.isEmpty()) return
-        currentIndex--
-        if (currentIndex < 0) currentIndex = playlist.lastIndex
-        val prevSong = playlist[currentIndex]
-        play(prevSong)
+        player.seekToPrevious()
+        currentIndex = player.currentMediaItemIndex
     }
 
-    fun seekTo(position: Long) { player.seekTo(position) }
-    fun getCurrentPosition(): Long = player.currentPosition
-    fun getDuration(): Long = if (player.duration > 0) player.duration else 0L
-    fun release() { player.release() }
+    fun seekTo(position: Long) {
+        player.seekTo(position)
+    }
 
-    // ---------------- Amplitude simulation ----------------
-    fun updateAmplitude() {
-        currentAmplitude = if (player.isPlaying) (50..150).random() else 0
+    fun getCurrentPosition(): Long = player.currentPosition
+
+    fun getDuration(): Long = if (player.duration > 0) player.duration else 0L
+
+    fun isPlaying(): Boolean = player.isPlaying
+
+    fun getCurrentSong(): Song? {
+        return if (currentIndex in playlist.indices) {
+            playlist[currentIndex]
+        } else null
+    }
+
+    fun release() {
+        amplitudeJob.cancel()
+        player.release()
     }
 
     fun toggleShuffle() {
         player.shuffleModeEnabled = !player.shuffleModeEnabled
+    }
+
+    fun setRepeatMode(mode: Int) {
+        player.repeatMode = mode
+    }
+
+    fun updateAmplitude() {
+        // Déjà géré par la coroutine
     }
 }

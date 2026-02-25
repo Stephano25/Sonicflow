@@ -10,6 +10,7 @@ fun PlaylistSong.toSong(): Song {
         title = this.title,
         artist = this.artist,
         album = this.album,
-        uri = Uri.parse(this.uri)
+        uri = Uri.parse(this.uri),
+        albumId = this.albumId  // Ajout de albumId
     )
 }

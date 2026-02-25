@@ -11,5 +11,6 @@ data class PlaylistSong(
     val title: String,
     val artist: String,
     val album: String,
-    val uri: String // ✅ stocké en String pour Room
+    val uri: String,
+    val albumId: Long = 0  // Ajout de albumId
 )
