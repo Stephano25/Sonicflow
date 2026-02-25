@@ -1,48 +1,109 @@
 <?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="200"
+    android:viewportHeight="200">
 
-    <!-- Fond avec dégradé (sans aapt:attr) -->
+    <!-- Fond violet profond -->
     <path
-        android:fillColor="#FF8E2DE2"
-        android:pathData="M54,0 L54,0A54,54 0,0 1,108 54L108,54A54,54 0,0 1,54 108L54,108A54,54 0,0 1,0 108L0,108A54,54 0,0 1,0 54L0,54A54,54 0,0 1,54 0z" />
+        android:fillColor="#1A0040"
+        android:pathData="M0,0 L200,0 L200,200 L0,200 Z" />
 
-    <!-- Cercle extérieur brillant -->
+    <!-- Couche dégradé violet haut -->
+    <path
+        android:fillColor="#8E2DE2"
+        android:fillAlpha="0.85"
+        android:pathData="M0,0 Q100,0 200,0 L200,80 Q150,40 100,50 Q50,60 0,40 Z" />
+
+    <!-- Cercle de fond glow -->
+    <path
+        android:fillColor="#7B2FBE"
+        android:fillAlpha="0.3"
+        android:pathData="M100,100 A72,72 0,1 1,99.99 100 Z" />
+
+    <!-- Cercle principal disque vinyle -->
+    <path
+        android:fillColor="#0D0020"
+        android:pathData="M100,100 A60,60 0,1 1,99.99 100 Z" />
+
+    <!-- Sillon vinyle externe -->
     <path
         android:fillColor="#00000000"
-        android:strokeColor="#80FFFFFF"
-        android:strokeWidth="2"
-        android:pathData="M54,14 A40,40 0,0 1,94 54 A40,40 0,0 1,54 94 A40,40 0,0 1,14 54 A40,40 0,0 1,54 14 Z" />
+        android:strokeColor="#44FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M100,100 A52,52 0,1 1,99.99 100 Z" />
 
-    <!-- Note de musique principale -->
+    <!-- Sillon vinyle milieu -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M54,35 L54,65 L64,55 L54,45 Z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="1.2"
+        android:pathData="M100,100 A44,44 0,1 1,99.99 100 Z" />
 
-    <!-- Cercle de la note -->
+    <!-- Sillon vinyle intérieur -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M44,60 A8,8 0,0 1,36 68 A8,8 0,0 1,28 60 A8,8 0,0 1,44 60 Z" />
+        android:fillColor="#00000000"
+        android:strokeColor="#22FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M100,100 A36,36 0,1 1,99.99 100 Z" />
 
-    <!-- Traînée lumineuse -->
+    <!-- Centre coloré du disque -->
     <path
-        android:fillColor="#40FFFFFF"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="3"
-        android:pathData="M68,30 Q78,40 82,52 Q86,64 76,74 Q70,80 58,78" />
+        android:fillColor="#8E2DE2"
+        android:pathData="M100,100 A18,18 0,1 1,99.99 100 Z" />
+    <path
+        android:fillColor="#4A00E0"
+        android:pathData="M100,100 A18,18 0,1 1,99.99 100 Z"
+        android:fillAlpha="0.5"/>
 
-    <!-- Petites étoiles/particules -->
+    <!-- Petit centre blanc brillant -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M78,38 L80,38 L79,40 Z" />
+        android:pathData="M100,100 A6,6 0,1 1,99.99 100 Z"
+        android:fillAlpha="0.95"/>
+
+    <!-- Note de musique - tige verticale -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M84,60 L86,60 L85,62 Z" />
+        android:pathData="M106,74 L109,74 L109,96 L106,96 Z" />
+
+    <!-- Note de musique - tête ovale -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M70,76 L72,76 L71,78 Z" />
+        android:pathData="M97,93 Q97,101 106,101 Q115,101 115,93 Q115,85 106,85 Q97,85 97,93 Z" />
+
+    <!-- Note de musique - queue horizontale -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M109,74 Q118,70 122,76 Q118,74 109,78 Z" />
+
+    <!-- Particules lumineuses -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.9"
+        android:pathData="M128,68 A3,3 0,1 1,127.99 68 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.7"
+        android:pathData="M138,82 A2,2 0,1 1,137.99 82 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.5"
+        android:pathData="M134,58 A1.5,1.5 0,1 1,133.99 58 Z" />
+
+    <!-- Arc lumineux décoratif -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.5"
+        android:strokeAlpha="0.5"
+        android:pathData="M72,60 Q55,80 58,105 Q61,128 80,140" />
+
+    <!-- Reflet vitré haut -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.08"
+        android:pathData="M30,10 Q100,5 170,15 Q170,50 100,45 Q30,40 30,10 Z" />
 
 </vector>

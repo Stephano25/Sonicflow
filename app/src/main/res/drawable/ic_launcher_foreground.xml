@@ -1,15 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24"
-    android:tint="#000000">
-  <group android:scaleX="0.58"
-      android:scaleY="0.58"
-      android:translateX="5.04"
-      android:translateY="5.04">
-      <path
-          android:pathData="M17.6,11.48 L19.44,8.3a0.63,0.63 0,0 0,-1.09 -0.63l-1.88,3.24a11.43,11.43 0,0 0,-8.94 0L5.65,7.67a0.63,0.63 0,0 0,-1.09 0.63L6.4,11.48A10.81,10.81 0,0 0,1 20L23,20A10.81,10.81 0,0 0,17.6 11.48ZM7,17.25A1.25,1.25 0,1 1,8.25 16,1.25 1.25,0 0,1 7,17.25ZM17,17.25A1.25,1.25 0,1 1,18.25 16,1.25 1.25,0 0,1 17,17.25Z"
-          android:fillColor="#FF000000"/>
-  </group>
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Fond violet dégradé simulé avec deux couches -->
+    <path
+        android:fillColor="#8E2DE2"
+        android:pathData="M0,0 L108,0 L108,108 L0,108 Z" />
+    <path
+        android:fillColor="#6A00C8"
+        android:pathData="M0,54 Q27,20 54,0 L108,0 L108,108 L0,108 Z"
+        android:fillAlpha="0.5"/>
+
+    <!-- Cercle halo extérieur -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="2.5"
+        android:pathData="M54,16 A38,38 0,1 1,53.99 16 Z" />
+
+    <!-- Cercle halo intérieur -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#22FFFFFF"
+        android:strokeWidth="1.5"
+        android:pathData="M54,24 A30,30 0,1 1,53.99 24 Z" />
+
+    <!-- Corps disque vinyle -->
+    <path
+        android:fillColor="#1A0040"
+        android:pathData="M54,28 A26,26 0,1 1,53.99 28 Z" />
+
+    <!-- Sillon disque 1 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#33FFFFFF"
+        android:strokeWidth="1"
+        android:pathData="M54,34 A20,20 0,1 1,53.99 34 Z" />
+
+    <!-- Sillon disque 2 -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#22FFFFFF"
+        android:strokeWidth="0.8"
+        android:pathData="M54,39 A15,15 0,1 1,53.99 39 Z" />
+
+    <!-- Centre brillant du disque -->
+    <path
+        android:fillColor="#8E2DE2"
+        android:pathData="M54,46 A8,8 0,1 1,53.99 46 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M54,50 A4,4 0,1 1,53.99 50 Z"
+        android:fillAlpha="0.9"/>
+
+    <!-- Note de musique blanche -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="
+            M62,33
+            L62,48
+            Q62,49 61,49
+            L57,50
+            Q55,50.5 55,52
+            A4,4 0,1 0,63,52
+            L63,36
+            Z"
+        android:fillAlpha="0.0"/>
+
+    <!-- Reflet haut gauche -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.12"
+        android:pathData="M20,10 Q40,8 60,14 Q70,17 72,28 Q60,18 40,16 Q28,15 20,10 Z" />
+
 </vector>
